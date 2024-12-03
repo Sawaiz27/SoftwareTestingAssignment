@@ -17,7 +17,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '23'  # Set the Java version (OpenJDK 23)
-        distribution: 'adoptopenjdk'
+        distribution: 'zulu'  # Use the Zulu OpenJDK distribution
 
     - name: Install MySQL client
       run: sudo apt-get install mysql-client  # Install MySQL client for connecting to the database
