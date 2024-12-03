@@ -1,7 +1,5 @@
 name: Run Tests and Enforce Merge Rules
 
-name: CI Workflow for Java Project
-
 on:
   pull_request:
     branches:
