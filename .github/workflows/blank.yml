@@ -11,24 +11,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Java
+      # Set up Java JDK 11
+      - name: Set up Java 11
         uses: actions/setup-java@v2
         with:
-          java-version: '11'  # Replace with the version you are using
+          java-version: '11'
 
+      # Cache Maven dependencies
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      # Install dependencies using Maven
       - name: Install dependencies
-        run: |
-          # If using Maven
-          mvn install
-          # Or if using Gradle
-          # ./gradlew build
+        run: mvn install -DskipTests
 
-      - name: Run Tests
-        run: |
-          # If using Maven
-          mvn test
-          # Or if using Gradle
-          # ./gradlew test
+      # Run tests
+      - name: Run tests
+        run: mvn test
+
+      # Upload test results (optional but helpful)
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: target/test-classes
