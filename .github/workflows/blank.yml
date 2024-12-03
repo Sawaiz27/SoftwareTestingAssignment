@@ -1,7 +1,5 @@
 name: Run Tests and Enforce Merge Rules
 
-name: Java CI
-
 on:
   push:
     branches:
