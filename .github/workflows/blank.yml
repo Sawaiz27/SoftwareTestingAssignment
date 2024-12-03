@@ -1,54 +1,36 @@
 name: Run Tests and Enforce Merge Rules
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Use a Linux-based runner
 
     steps:
-      # Checkout code
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    - name: Checkout Code
+      uses: actions/checkout@v3  # Checkout the repository code
 
-      # Set up Java environment
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin' # Use OpenJDK from Eclipse Temurin
-          java-version: '23.0.1' # Use the version you specified
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '23'  # Set the Java version (OpenJDK 23)
+        distribution: 'adoptopenjdk'
 
-      # Cache dependencies (optional, useful for large projects)
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-m2
+    - name: Install MySQL client
+      run: sudo apt-get install mysql-client  # Install MySQL client for connecting to the database
 
-      # Set up environment variables for classpath
-      - name: Set environment variables
-        run: |
-          echo "CLASSPATH=.:$PWD/lib/junit-jupiter-api-5.8.1.jar:$PWD/lib/junit-platform-console-standalone-1.8.1.jar" >> $GITHUB_ENV
-          echo "OUTPUT_DIR=$PWD/out" >> $GITHUB_ENV
+    - name: Set up MySQL database
+      run: |
+        mysql -h mysql-1e7edf9b-lhr-b3a4.e.aivencloud.com -u avnadmin -pAVNS_BOwgsttXw1DG074BVy8 -e "CREATE DATABASE IF NOT EXISTS softwaretesting;"
+      env:
+        MYSQL_PWD: AVNS_BOwgsttXw1DG074BVy8
 
-      # Create output directory
-      - name: Create output directory
-        run: mkdir -p $OUTPUT_DIR
-
-      # Compile the code
-      - name: Compile Java files
-        run: |
-          javac -cp "$CLASSPATH" -d "$OUTPUT_DIR" src/loginapp/LoginApp.java src/test/LoginTest.java
-
-      # Run tests
-      - name: Run JUnit tests
-        run: |
-          java -cp "$CLASSPATH:$OUTPUT_DIR" org.junit.platform.console.ConsoleLauncher --scan-classpath
+    - name: Run tests
+      run: |
+        # Compile and run tests using Maven
+        # If you're not using Maven or Gradle, just compile the classes with javac or use any build tool you prefer
+        javac -cp ".:/path/to/junit-5.8.1.jar:/path/to/mysql-connector-java-9.0.0.jar" src/test/*.java  # Compile test cases
+        java -cp ".:/path/to/junit-5.8.1.jar:/path/to/mysql-connector-java-9.0.0.jar" org.junit.platform.console.ConsoleLauncher --scan-classpath  # Run tests
