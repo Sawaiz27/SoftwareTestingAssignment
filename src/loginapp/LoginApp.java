@@ -73,6 +73,9 @@ public class LoginApp extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        System.out.println("This is another print statement added for testing! #10");
+        System.out.println("This is another print statement added for testing! #10");
         return userName;
     }
 
