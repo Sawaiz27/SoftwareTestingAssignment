@@ -1,0 +1,37 @@
+name: Run Tests and Enforce Merge Rules
+
+name: CI Workflow for Java Project
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Use a Linux-based runner
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3  # Checkout the repository code
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '23'  # Set the Java version (OpenJDK 23)
+        distribution: 'zulu'  # Use the Zulu OpenJDK distribution
+
+    - name: Install MySQL client
+      run: sudo apt-get install mysql-client  # Install MySQL client for connecting to the database
+
+    - name: Set up MySQL database
+      run: |
+        mysql -h mysql-1e7edf9b-lhr-b3a4.e.aivencloud.com -P 25416 -u avnadmin -pAVNS_BOwgsttXw1DG074BVy8 -e "CREATE DATABASE IF NOT EXISTS softwaretesting;"
+      env:
+        MYSQL_PWD: AVNS_BOwgsttXw1DG074BVy8
+
+    - name: Run tests
+      run: |
+        # Compile and run tests using the JAR files from the 'lib' directory
+        javac -cp ".:lib/junit-jupiter-5.8.1.jar:lib/mysql-connector-j-9.0.0.jar" src/test/*.java  # Compile test cases
+        java -cp ".:lib/junit-jupiter-5.8.1.jar:lib/mysql-connector-j-9.0.0.jar" org.junit.platform.console.ConsoleLauncher --scan-classpath  # Run tests
